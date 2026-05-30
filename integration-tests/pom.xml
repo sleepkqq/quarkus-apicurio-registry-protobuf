@@ -14,6 +14,7 @@
         <skipITs>true</skipITs>
         <testcontainers.version>1.20.6</testcontainers.version>
         <apicurio.image>apicurio/apicurio-registry:3.2.4</apicurio.image>
+        <catalog-model.version>1.0.0-SNAPSHOT</catalog-model.version>
     </properties>
 
     <dependencies>
@@ -33,7 +34,7 @@
         <dependency>
             <groupId>com.example</groupId>
             <artifactId>catalog-protobuf-model</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${catalog-model.version}</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
