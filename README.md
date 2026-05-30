@@ -1,5 +1,6 @@
 # Quarkus Apicurio Registry — Protobuf
 
+[![CI](https://github.com/sleepkqq/quarkus-apicurio-registry-protobuf/actions/workflows/ci.yml/badge.svg)](https://github.com/sleepkqq/quarkus-apicurio-registry-protobuf/actions/workflows/ci.yml)
 [![](https://jitpack.io/v/sleepkqq/quarkus-apicurio-registry-protobuf.svg)](https://jitpack.io/#sleepkqq/quarkus-apicurio-registry-protobuf)
 
 A Quarkus extension that makes the **Apicurio Registry Kafka Protobuf serde** work in
@@ -24,8 +25,14 @@ serde and your generated message classes reflectively by name and GraalVM strips
 
 ## Stack
 
-Quarkus 3.35.x · Apicurio Registry 3.2.x (`apicurio-registry-protobuf-serde-kafka`) ·
-protobuf-java 4.34.x · kafka-clients 4.2.x · Java 21.
+Quarkus 3.36.x · Apicurio Registry 3.2.x (`apicurio-registry-protobuf-serde-kafka`) ·
+protobuf-java 4.35.x · kafka-clients 4.2.x · Java 21.
+
+## Versions
+
+| Extension | Quarkus | Apicurio Registry | protobuf-java |
+|-----------|---------|-------------------|---------------|
+| 1.0.0     | 3.36.0  | 3.2.4             | 4.35.0        |
 
 ## Coordinates
 
@@ -114,6 +121,19 @@ Build order: `mvn -f example-model/pom.xml install` first, then the integration 
 
 ### Note on bleeding-edge Docker
 
-Testcontainers' bundled `docker-java` negotiates Docker Remote API `1.32`, which daemons ≥ Docker
+Older Testcontainers / `docker-java` negotiated Docker Remote API `1.32`, which daemons ≥ Docker
 25/29 reject (`minimum supported API version is 1.40`). The IT pins `-Dapi.version=1.43` via the
-surefire/failsafe `argLine`. On older Docker this is a harmless no-op.
+surefire/failsafe `argLine` (a harmless no-op on Testcontainers 2.x, which negotiates automatically).
+
+## CI / Release
+
+- **CI** (`.github/workflows/ci.yml`) — on PRs / pushes to `master`: builds the extension and the
+  example model, runs the JVM integration tests (Docker available on the runner).
+- **Release** (`.github/workflows/release.yml`) — on a tag push: builds and creates a GitHub
+  Release with generated notes. Consume the tagged version via JitPack
+  ([jitpack.io/#sleepkqq/quarkus-apicurio-registry-protobuf](https://jitpack.io/#sleepkqq/quarkus-apicurio-registry-protobuf)).
+- **Dependabot** (`.github/dependabot.yml`) — weekly Maven + GitHub Actions updates, grouped.
+
+## License
+
+[Apache License 2.0](LICENSE).
