@@ -15,7 +15,7 @@ example-model/       — STANDALONE Maven project (NOT a reactor module): exampl
 ```
 
 Coordinates: `com.sleepkqq:quarkus-apicurio-registry-protobuf` (+ `-deployment`). GitHub repo /
-Packages: `planet-studio-ai/quarkus-apicurio-registry-protobuf`. Java packages are `ru.meenity.*`
+Packages: `sleepkqq/quarkus-apicurio-registry-protobuf`. Java packages are `ru.meenity.*`
 (intentionally not renamed to match the groupId).
 
 ## Build & test
@@ -69,5 +69,5 @@ mvn -f integration-tests/pom.xml verify -Dnative -Dquarkus.native.container-buil
 
 ## Publishing
 
-`distributionManagement` targets GitHub Packages (`planet-studio-ai`). `mvn deploy` with GitHub
-credentials (same setup as other planet-studio-ai artifacts).
+`distributionManagement` targets GitHub Packages (`sleepkqq`). `mvn deploy` with GitHub
+credentials (a server entry matching the `github` repo id in `~/.m2/settings.xml`).
