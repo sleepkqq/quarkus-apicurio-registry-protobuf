@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_package = "com.example.weather";
+option java_multiple_files = true;
+
+message Reading {
+  string station = 1;
+  double temperature = 2;
+  string condition = 3;
+}

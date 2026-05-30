@@ -73,8 +73,25 @@ mvn -f integration-tests/pom.xml verify -Dnative \
     -Dquarkus.native.container-build=true           # native round-trip (Docker required)
 ```
 
-The integration test produces and consumes a `FriendRequestApproved` protobuf record through
-Kafka (Dev Services) + Apicurio Registry 3.x (Testcontainers) and asserts a typed round-trip.
+The integration test is fully self-contained — it does not depend on any external schema
+library. A standalone sibling project `example-model/` (`com.example:catalog-protobuf-model`,
+built separately, not part of the extension reactor) generates protobuf messages two ways via
+the [ascopes protobuf-maven-plugin](https://github.com/ascopes/protobuf-maven-plugin):
+
+- **Java codegen** — `com.example.catalog.Book` (plain `--java_out`)
+- **Kotlin codegen** — `com.example.weather.Reading` (`kotlinEnabled`, used through the generated
+  Kotlin DSL `reading { ... }`)
+
+The test produces and consumes each through Kafka (Dev Services) + Apicurio Registry 3.x
+(Testcontainers) and asserts a typed round-trip — covering both codegen flavours in JVM **and**
+GraalVM native. The model jar ships no Jandex index, so the test points the extension at it with
+`quarkus.apicurio.registry.protobuf.index-dependencies=com.example:catalog-protobuf-model`.
+
+Note: the message classes must come from a dependency jar (not the application's own classes),
+because the Apicurio serde resolves the return-class from Quarkus' base classloader — exactly how
+a real consumer ships schemas in a separate artifact.
+
+Build order: `mvn -f example-model/pom.xml install` first, then the integration tests.
 
 ### Note on bleeding-edge Docker
 
