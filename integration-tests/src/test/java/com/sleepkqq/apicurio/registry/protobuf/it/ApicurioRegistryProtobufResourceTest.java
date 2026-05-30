@@ -13,11 +13,20 @@ import io.quarkus.test.junit.QuarkusTest;
 public class ApicurioRegistryProtobufResourceTest {
 
 	@Test
-	public void typedProtobufRoundTrip() {
+	public void javaGeneratedProtobufRoundTrip() {
 		given()
-				.when().get("/protobuf/roundtrip")
+				.when().get("/protobuf/java-roundtrip")
 				.then()
 				.statusCode(200)
-				.body(is("social.FriendRequestApproved|Alice|bob"));
+				.body(is("com.example.catalog.Book|Dune|Herbert"));
+	}
+
+	@Test
+	public void kotlinGeneratedProtobufRoundTrip() {
+		given()
+				.when().get("/protobuf/kotlin-roundtrip")
+				.then()
+				.statusCode(200)
+				.body(is("com.example.weather.Reading|KSFO|Foggy"));
 	}
 }

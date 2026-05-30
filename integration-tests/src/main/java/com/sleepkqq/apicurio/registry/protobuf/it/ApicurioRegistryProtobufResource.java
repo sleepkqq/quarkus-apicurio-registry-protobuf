@@ -16,16 +16,18 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import com.example.catalog.Book;
+import com.example.sample.WeatherFactory;
+import com.example.weather.Reading;
+import com.google.protobuf.Message;
+
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import social.FriendRequestApproved;
 
 @Path("/protobuf")
 public class ApicurioRegistryProtobufResource {
-
-	private static final String TOPIC = "friend-request-approved";
 
 	@ConfigProperty(name = "kafka.bootstrap.servers")
 	String kafkaBootstrap;
@@ -34,21 +36,33 @@ public class ApicurioRegistryProtobufResource {
 	String registryUrl;
 
 	@GET
-	@Path("/roundtrip")
+	@Path("/java-roundtrip")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String roundtrip() throws Exception {
-		FriendRequestApproved sent = FriendRequestApproved.newBuilder()
-				.setFriendRequestId("fr-1")
-				.setAuthorName("Alice")
-				.setRecipientId("bob")
+	public String javaRoundtrip() throws Exception {
+		Book sent = Book.newBuilder()
+				.setIsbn("978-0441013593")
+				.setTitle("Dune")
+				.setAuthor("Herbert")
 				.build();
-
-		produce(sent);
-		FriendRequestApproved received = consume();
-		return received.getClass().getName() + "|" + received.getAuthorName() + "|" + received.getRecipientId();
+		Book received = roundtrip("catalog-book", sent, Book.class);
+		return received.getClass().getName() + "|" + received.getTitle() + "|" + received.getAuthor();
 	}
 
-	private void produce(FriendRequestApproved message) throws Exception {
+	@GET
+	@Path("/kotlin-roundtrip")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String kotlinRoundtrip() throws Exception {
+		Reading sent = WeatherFactory.INSTANCE.sample();
+		Reading received = roundtrip("weather-reading", sent, Reading.class);
+		return received.getClass().getName() + "|" + received.getStation() + "|" + received.getCondition();
+	}
+
+	private <T extends Message> T roundtrip(String topic, T message, Class<T> type) throws Exception {
+		produce(topic, message);
+		return consume(topic, type);
+	}
+
+	private <T extends Message> void produce(String topic, T message) throws Exception {
 		Properties props = new Properties();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrap);
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
@@ -57,13 +71,13 @@ public class ApicurioRegistryProtobufResource {
 		props.put("apicurio.registry.url", registryUrl);
 		props.put("apicurio.registry.auto-register", "true");
 
-		try (KafkaProducer<String, FriendRequestApproved> producer = new KafkaProducer<>(props)) {
-			producer.send(new ProducerRecord<>(TOPIC, "key-1", message)).get();
+		try (KafkaProducer<String, T> producer = new KafkaProducer<>(props)) {
+			producer.send(new ProducerRecord<>(topic, "key-1", message)).get();
 			producer.flush();
 		}
 	}
 
-	private FriendRequestApproved consume() {
+	private <T> T consume(String topic, Class<T> type) {
 		Properties props = new Properties();
 		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrap);
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, "it-" + UUID.randomUUID());
@@ -72,14 +86,14 @@ public class ApicurioRegistryProtobufResource {
 		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
 				"io.apicurio.registry.serde.protobuf.ProtobufKafkaDeserializer");
 		props.put("apicurio.registry.url", registryUrl);
-		props.put("apicurio.registry.deserializer.value.return-class", FriendRequestApproved.class.getName());
+		props.put("apicurio.registry.deserializer.value.return-class", type.getName());
 
-		try (KafkaConsumer<String, FriendRequestApproved> consumer = new KafkaConsumer<>(props)) {
-			consumer.subscribe(List.of(TOPIC));
+		try (KafkaConsumer<String, T> consumer = new KafkaConsumer<>(props)) {
+			consumer.subscribe(List.of(topic));
 			long deadline = System.currentTimeMillis() + Duration.ofSeconds(30).toMillis();
 			while (System.currentTimeMillis() < deadline) {
-				ConsumerRecords<String, FriendRequestApproved> records = consumer.poll(Duration.ofSeconds(2));
-				for (ConsumerRecord<String, FriendRequestApproved> record : records) {
+				ConsumerRecords<String, T> records = consumer.poll(Duration.ofSeconds(2));
+				for (ConsumerRecord<String, T> record : records) {
 					return record.value();
 				}
 			}

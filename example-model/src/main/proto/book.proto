@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_package = "com.example.catalog";
+option java_multiple_files = true;
+
+message Book {
+  string isbn = 1;
+  string title = 2;
+  string author = 3;
+}
