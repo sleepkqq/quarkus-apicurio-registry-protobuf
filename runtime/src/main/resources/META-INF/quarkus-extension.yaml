@@ -1,0 +1,11 @@
+name: Apicurio Registry - Protobuf
+description: Use Apicurio Registry with Kafka Protobuf serializers/deserializers, with GraalVM native support
+metadata:
+  keywords:
+    - apicurio
+    - protobuf
+    - kafka
+    - serialization
+  categories:
+    - "serialization"
+  status: "experimental"
