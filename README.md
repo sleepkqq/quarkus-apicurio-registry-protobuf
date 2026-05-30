@@ -28,15 +28,15 @@ protobuf-java 4.34.x · kafka-clients 4.2.x · Java 21.
 ## Coordinates
 
 ```
-com.sleepkqq:apicurio-registry-protobuf:1.0.0-SNAPSHOT
+com.sleepkqq:quarkus-apicurio-registry-protobuf:1.0.0-SNAPSHOT
 ```
 
 ### Gradle (consumer, e.g. example-service)
 
 ```kotlin
 // libs.versions.toml
-// apicurio-registry-protobuf = { group = "com.sleepkqq", name = "apicurio-registry-protobuf", version = "1.0.0" }
-implementation(libs.apicurio.registry.protobuf)
+// quarkus-apicurio-registry-protobuf = { group = "com.sleepkqq", name = "quarkus-apicurio-registry-protobuf", version = "1.0.0" }
+implementation(libs.quarkus.apicurio.registry.protobuf)
 implementation("io.quarkus:quarkus-messaging-kafka") // or quarkus-kafka-client
 ```
 
