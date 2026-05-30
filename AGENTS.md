@@ -71,3 +71,7 @@ mvn -f integration-tests/pom.xml verify -Dnative -Dquarkus.native.container-buil
 
 `distributionManagement` targets GitHub Packages (`sleepkqq`). `mvn deploy` with GitHub
 credentials (a server entry matching the `github` repo id in `~/.m2/settings.xml`).
+
+`jitpack.yml` (JDK 21, `mvn clean install -DskipTests`) lets JitPack build the artifacts on demand.
+JitPack rewrites the groupId to `com.github.sleepkqq.quarkus-apicurio-registry-protobuf`, so the
+deployment artifact is not auto-resolvable there — prefer GitHub Packages for real consumption.

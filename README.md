@@ -1,5 +1,7 @@
 # Quarkus Apicurio Registry — Protobuf
 
+[![](https://jitpack.io/v/sleepkqq/quarkus-apicurio-registry-protobuf.svg)](https://jitpack.io/#sleepkqq/quarkus-apicurio-registry-protobuf)
+
 A Quarkus extension that makes the **Apicurio Registry Kafka Protobuf serde** work in
 **GraalVM native** mode, on par with the official `quarkus-apicurio-registry-avro` and
 `quarkus-apicurio-registry-json-schema` extensions (which exist only for Avro and JSON Schema —
@@ -39,6 +41,23 @@ com.sleepkqq:quarkus-apicurio-registry-protobuf:1.0.0-SNAPSHOT
 implementation(libs.quarkus.apicurio.registry.protobuf)
 implementation("io.quarkus:quarkus-messaging-kafka") // or quarkus-kafka-client
 ```
+
+### JitPack
+
+The repo builds on [JitPack](https://jitpack.io/#sleepkqq/quarkus-apicurio-registry-protobuf)
+(`jitpack.yml`, JDK 21). JitPack rewrites the groupId to `com.github.<user>.<repo>` and uses the
+module name as the artifactId:
+
+```kotlin
+repositories { maven("https://jitpack.io") }
+
+implementation("com.github.sleepkqq.quarkus-apicurio-registry-protobuf:quarkus-apicurio-registry-protobuf:<tag>")
+```
+
+`<tag>` is a git tag or commit hash. Note: because JitPack does not preserve the original
+`com.sleepkqq` groupId, the extension's deployment artifact (referenced by the generated extension
+descriptor) is not auto-resolvable from JitPack. For production, prefer the GitHub Packages
+release (`com.sleepkqq:…`), which keeps the original coordinates; use JitPack for quick trials.
 
 ## Configuration
 
