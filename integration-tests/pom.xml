@@ -12,7 +12,7 @@
 
     <properties>
         <skipITs>true</skipITs>
-        <testcontainers.version>1.20.6</testcontainers.version>
+        <testcontainers.version>2.0.5</testcontainers.version>
         <apicurio.image>apicurio/apicurio-registry:3.2.4</apicurio.image>
         <catalog-model.version>1.0.0-SNAPSHOT</catalog-model.version>
     </properties>

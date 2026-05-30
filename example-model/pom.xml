@@ -11,10 +11,10 @@
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <protobuf.version>4.34.1</protobuf.version>
+        <protobuf.version>4.35.0</protobuf.version>
         <kotlin.version>2.3.21</kotlin.version>
-        <protobuf-maven-plugin.version>3.6.0</protobuf-maven-plugin.version>
-        <compiler-plugin.version>3.13.0</compiler-plugin.version>
+        <protobuf-maven-plugin.version>5.1.4</protobuf-maven-plugin.version>
+        <compiler-plugin.version>3.15.0</compiler-plugin.version>
     </properties>
 
     <dependencies>
