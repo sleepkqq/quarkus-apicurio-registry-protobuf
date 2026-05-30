@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>ru.meenity</groupId>
-        <artifactId>apicurio-registry-protobuf-parent</artifactId>
+        <groupId>com.sleepkqq</groupId>
+        <artifactId>quarkus-apicurio-registry-protobuf-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>apicurio-registry-protobuf</artifactId>
-    <name>Apicurio Registry Protobuf - Runtime</name>
+    <artifactId>quarkus-apicurio-registry-protobuf</artifactId>
+    <name>Quarkus Apicurio Registry Protobuf - Runtime</name>
 
     <dependencies>
         <dependency>

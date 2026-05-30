@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>ru.meenity</groupId>
-        <artifactId>apicurio-registry-protobuf-parent</artifactId>
+        <groupId>com.sleepkqq</groupId>
+        <artifactId>quarkus-apicurio-registry-protobuf-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>apicurio-registry-protobuf-integration-tests</artifactId>
-    <name>Apicurio Registry Protobuf - Integration Tests</name>
+    <artifactId>quarkus-apicurio-registry-protobuf-integration-tests</artifactId>
+    <name>Quarkus Apicurio Registry Protobuf - Integration Tests</name>
 
     <properties>
         <skipITs>true</skipITs>
@@ -27,8 +27,8 @@
             <artifactId>quarkus-kafka-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>ru.meenity</groupId>
-            <artifactId>apicurio-registry-protobuf</artifactId>
+            <groupId>com.sleepkqq</groupId>
+            <artifactId>quarkus-apicurio-registry-protobuf</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
