@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.sleepkqq</groupId>
+        <groupId>com.github.sleepkqq.quarkus-apicurio-registry-protobuf</groupId>
         <artifactId>quarkus-apicurio-registry-protobuf-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.5</version>
     </parent>
     <artifactId>quarkus-apicurio-registry-protobuf-integration-tests</artifactId>
     <name>Quarkus Apicurio Registry Protobuf - Integration Tests</name>
@@ -27,7 +27,7 @@
             <artifactId>quarkus-kafka-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sleepkqq</groupId>
+            <groupId>com.github.sleepkqq.quarkus-apicurio-registry-protobuf</groupId>
             <artifactId>quarkus-apicurio-registry-protobuf</artifactId>
             <version>${project.version}</version>
         </dependency>
