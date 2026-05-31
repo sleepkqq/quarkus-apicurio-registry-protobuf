@@ -22,7 +22,10 @@ public class ApicurioRegistryTestResource implements QuarkusTestResourceLifecycl
 				.waitingFor(Wait.forHttp("/apis/registry/v3/system/info").forPort(PORT).forStatusCode(200));
 		registry.start();
 		String url = "http://" + registry.getHost() + ":" + registry.getMappedPort(PORT) + "/apis/registry/v3";
-		return Map.of("apicurio.registry.url", url);
+		return Map.of(
+				"apicurio.registry.url", url,
+				"mp.messaging.connector.smallrye-kafka.apicurio.registry.url", url
+		);
 	}
 
 	@Override

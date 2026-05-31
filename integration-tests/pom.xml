@@ -27,6 +27,10 @@
             <artifactId>quarkus-kafka-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-messaging-kafka</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.sleepkqq.quarkus-apicurio-registry-protobuf</groupId>
             <artifactId>quarkus-apicurio-registry-protobuf</artifactId>
             <version>${project.version}</version>
