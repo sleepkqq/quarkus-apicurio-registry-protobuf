@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.sleepkqq.quarkus-apicurio-registry-protobuf</groupId>
     <artifactId>quarkus-apicurio-registry-protobuf-parent</artifactId>
-    <version>1.0.10</version>
+    <version>1.0.11</version>
     <packaging>pom</packaging>
     <name>Quarkus Apicurio Registry Protobuf - Parent</name>
 
@@ -18,7 +18,7 @@
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <quarkus.version>3.35.4</quarkus.version>
+        <quarkus.version>3.36.0</quarkus.version>
         <apicurio.version>3.2.4</apicurio.version>
         <!-- Must be >= the protoc gencode version bundled in Apicurio's schema-util-protobuf
              (4.34.1); protobuf-java 4.x refuses to run gencode newer than the runtime. -->
