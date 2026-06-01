@@ -1,4 +1,4 @@
 jdk:
-  - temurin21
+  - openjdk21
 install:
   - ./mvnw clean install -DskipTests
