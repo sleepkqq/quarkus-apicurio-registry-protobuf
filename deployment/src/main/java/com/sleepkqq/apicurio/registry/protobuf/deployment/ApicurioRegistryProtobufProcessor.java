@@ -36,33 +36,22 @@ class ApicurioRegistryProtobufProcessor {
 	@BuildStep
 	void registerSerdeClasses(BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
 		reflectiveClass.produce(ReflectiveClassBuildItem.builder(
-				"io.apicurio.registry.serde.protobuf.ProtobufKafkaSerializer",
-				"io.apicurio.registry.serde.protobuf.ProtobufKafkaDeserializer",
-				"io.apicurio.registry.serde.protobuf.ProtobufSerde")
+				"io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer",
+				"io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer")
 				.reason(FEATURE)
 				.methods().build());
 
 		reflectiveClass.produce(ReflectiveClassBuildItem.builder(
-				"io.apicurio.registry.serde.protobuf.ProtobufSerializer",
-				"io.apicurio.registry.serde.protobuf.ProtobufDeserializer",
-				"io.apicurio.registry.serde.protobuf.ProtobufSerializerConfig",
-				"io.apicurio.registry.serde.protobuf.ProtobufDeserializerConfig",
-				"io.apicurio.registry.serde.protobuf.ProtobufSchemaParser",
-				"io.apicurio.registry.serde.protobuf.MessageIndexesUtil",
-				"io.apicurio.registry.serde.protobuf.ProtobufSerdeHeaders",
-				"io.apicurio.registry.serde.kafka.headers.DefaultHeadersHandler",
-				"io.apicurio.registry.serde.kafka.headers.MessageTypeSerdeHeaders",
-				"io.apicurio.registry.serde.Default4ByteIdHandler",
-				"io.apicurio.registry.serde.Legacy8ByteIdHandler",
-				"io.apicurio.registry.serde.OptimisticFallbackIdHandler",
-				"io.apicurio.registry.serde.fallback.DefaultFallbackArtifactProvider",
-				"io.apicurio.registry.serde.strategy.TopicIdStrategy",
-				"io.apicurio.registry.serde.strategy.SimpleTopicIdStrategy",
-				"io.apicurio.registry.resolver.DefaultSchemaResolver",
-				"io.apicurio.registry.resolver.strategy.DynamicArtifactReferenceResolverStrategy",
-				"io.apicurio.registry.resolver.client.RegistryClientFacadeFactory",
-				"io.apicurio.registry.resolver.client.RegistryClientFacadeImpl",
-				"io.apicurio.registry.resolver.client.RegistryClientFacadeImpl_v2")
+				"io.confluent.kafka.schemaregistry.protobuf.ProtobufSchema",
+				"io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider",
+				"io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient",
+				"io.confluent.kafka.schemaregistry.client.rest.RestService",
+				"io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializerConfig",
+				"io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializerConfig",
+				"io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig",
+				"io.confluent.kafka.serializers.subject.TopicNameStrategy",
+				"io.confluent.kafka.serializers.subject.RecordNameStrategy",
+				"io.confluent.kafka.serializers.subject.TopicRecordNameStrategy")
 				.reason(FEATURE)
 				.methods().fields().build());
 	}

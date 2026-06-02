@@ -27,7 +27,7 @@ public class SmallryeKafkaProtobufTest {
     @ConfigProperty(name = "kafka.bootstrap.servers")
     String kafkaBootstrap;
 
-    @ConfigProperty(name = "apicurio.registry.url")
+    @ConfigProperty(name = "schema.registry.url")
     String registryUrl;
 
     @BeforeEach
@@ -57,9 +57,8 @@ public class SmallryeKafkaProtobufTest {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrap);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                "io.apicurio.registry.serde.protobuf.ProtobufKafkaSerializer");
-        props.put("apicurio.registry.url", registryUrl);
-        props.put("apicurio.registry.auto-register", "true");
+                "io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer");
+        props.put("schema.registry.url", registryUrl);
 
         try (KafkaProducer<String, Book> producer = new KafkaProducer<>(props)) {
             producer.send(new ProducerRecord<>(topic, UUID.randomUUID().toString(), book)).get();

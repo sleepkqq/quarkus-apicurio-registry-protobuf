@@ -21,10 +21,10 @@ public class ApicurioRegistryTestResource implements QuarkusTestResourceLifecycl
 				.withExposedPorts(PORT)
 				.waitingFor(Wait.forHttp("/apis/registry/v3/system/info").forPort(PORT).forStatusCode(200));
 		registry.start();
-		String url = "http://" + registry.getHost() + ":" + registry.getMappedPort(PORT) + "/apis/registry/v3";
+		String ccompatUrl = "http://" + registry.getHost() + ":" + registry.getMappedPort(PORT) + "/apis/ccompat/v7";
 		return Map.of(
-				"apicurio.registry.url", url,
-				"mp.messaging.connector.smallrye-kafka.apicurio.registry.url", url
+				"schema.registry.url", ccompatUrl,
+				"mp.messaging.connector.smallrye-kafka.schema.registry.url", ccompatUrl
 		);
 	}
 

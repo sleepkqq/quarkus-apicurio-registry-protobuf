@@ -32,7 +32,7 @@ public class ApicurioRegistryProtobufResource {
 	@ConfigProperty(name = "kafka.bootstrap.servers")
 	String kafkaBootstrap;
 
-	@ConfigProperty(name = "apicurio.registry.url")
+	@ConfigProperty(name = "schema.registry.url")
 	String registryUrl;
 
 	@GET
@@ -67,9 +67,8 @@ public class ApicurioRegistryProtobufResource {
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrap);
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-				"io.apicurio.registry.serde.protobuf.ProtobufKafkaSerializer");
-		props.put("apicurio.registry.url", registryUrl);
-		props.put("apicurio.registry.auto-register", "true");
+				"io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer");
+		props.put("schema.registry.url", registryUrl);
 
 		try (KafkaProducer<String, T> producer = new KafkaProducer<>(props)) {
 			producer.send(new ProducerRecord<>(topic, "key-1", message)).get();
@@ -84,9 +83,9 @@ public class ApicurioRegistryProtobufResource {
 		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
 		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-				"io.apicurio.registry.serde.protobuf.ProtobufKafkaDeserializer");
-		props.put("apicurio.registry.url", registryUrl);
-		props.put("apicurio.registry.deserializer.value.return-class", type.getName());
+				"io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer");
+		props.put("schema.registry.url", registryUrl);
+		props.put("specific.protobuf.value.type", type.getName());
 
 		try (KafkaConsumer<String, T> consumer = new KafkaConsumer<>(props)) {
 			consumer.subscribe(List.of(topic));

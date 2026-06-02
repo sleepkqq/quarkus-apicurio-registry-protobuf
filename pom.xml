@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.sleepkqq.quarkus-apicurio-registry-protobuf</groupId>
     <artifactId>quarkus-apicurio-registry-protobuf-parent</artifactId>
-    <version>1.0.11</version>
+    <version>1.0.12</version>
     <packaging>pom</packaging>
     <name>Quarkus Apicurio Registry Protobuf - Parent</name>
 
@@ -20,6 +20,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.version>3.36.0</quarkus.version>
         <apicurio.version>3.2.4</apicurio.version>
+        <confluent.version>8.2.1</confluent.version>
         <!-- Must be >= the protoc gencode version bundled in Apicurio's schema-util-protobuf
              (4.34.1); protobuf-java 4.x refuses to run gencode newer than the runtime. -->
         <protobuf.version>4.35.0</protobuf.version>
@@ -98,8 +99,26 @@
                 <artifactId>apicurio-registry-common</artifactId>
                 <version>${apicurio.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-protobuf-serializer</artifactId>
+                <version>${confluent.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.kafka</groupId>
+                        <artifactId>kafka-clients</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
+        </repository>
+    </repositories>
 
     <build>
         <pluginManagement>
