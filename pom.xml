@@ -19,7 +19,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.version>3.36.1</quarkus.version>
-        <apicurio.version>3.2.4</apicurio.version>
+        <apicurio.version>3.2.5</apicurio.version>
         <confluent.version>8.2.1</confluent.version>
         <!-- Must be >= the protoc gencode version bundled in Apicurio's schema-util-protobuf
              (4.34.1); protobuf-java 4.x refuses to run gencode newer than the runtime. -->
