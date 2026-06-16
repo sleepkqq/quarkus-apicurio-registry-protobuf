@@ -77,6 +77,7 @@ class ApicurioRegistryProtobufProcessor {
 	@BuildStep
 	void runtimeInitializedProtobuf(BuildProducer<RuntimeInitializedPackageBuildItem> runtimeInitPackage) {
 		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("com.google.protobuf"));
+		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("io.confluent.kafka.schemaregistry.protobuf"));
 		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("metadata"));
 		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("io.apicurio.registry.serde.protobuf.ref"));
 		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("io.apicurio.registry.utils.protobuf.schema"));
