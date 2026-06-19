@@ -26,6 +26,14 @@ class ApicurioRegistryProtobufProcessor {
 	private static final DotName GENERATED_MESSAGE = DotName.createSimple("com.google.protobuf.GeneratedMessage");
 	private static final DotName PROTOCOL_MESSAGE_ENUM = DotName.createSimple("com.google.protobuf.ProtocolMessageEnum");
 
+	private static final DotName[] SERDE_STRATEGY_INTERFACES = {
+			DotName.createSimple("io.confluent.kafka.serializers.context.strategy.ContextNameStrategy"),
+			DotName.createSimple("io.confluent.kafka.serializers.subject.strategy.SubjectNameStrategy"),
+			DotName.createSimple("io.confluent.kafka.serializers.subject.strategy.ReferenceSubjectNameStrategy"),
+			DotName.createSimple("io.confluent.kafka.serializers.schema.id.SchemaIdSerializer"),
+			DotName.createSimple("io.confluent.kafka.serializers.schema.id.SchemaIdDeserializer")
+	};
+
 	@BuildStep
 	FeatureBuildItem feature() {
 		return new FeatureBuildItem(FEATURE);
@@ -54,14 +62,33 @@ class ApicurioRegistryProtobufProcessor {
 				"io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig")
 				.reason(FEATURE)
 				.methods().fields().build());
+	}
 
-		reflectiveClass.produce(ReflectiveClassBuildItem.builder(
-				"io.confluent.kafka.serializers.context.NullContextNameStrategy",
-				"io.confluent.kafka.serializers.subject.TopicNameStrategy",
-				"io.confluent.kafka.serializers.subject.RecordNameStrategy",
-				"io.confluent.kafka.serializers.subject.TopicRecordNameStrategy")
-				.reason(FEATURE)
-				.methods().fields().constructors().build());
+	@BuildStep
+	IndexDependencyBuildItem indexSchemaSerializer() {
+		return new IndexDependencyBuildItem("io.confluent", "kafka-schema-serializer");
+	}
+
+	/**
+	 * Confluent serde reflectively instantiates the context/subject/schema-id strategies via a public
+	 * no-arg constructor (AbstractConfig.getConfiguredInstance). Rather than listing each default by
+	 * name, register every implementor of the strategy interfaces with constructors so any default or
+	 * configured strategy resolves in native.
+	 */
+	@BuildStep
+	void registerSerdeStrategies(CombinedIndexBuildItem combinedIndex,
+			BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
+		IndexView index = combinedIndex.getIndex();
+		for (DotName iface : SERDE_STRATEGY_INTERFACES) {
+			reflectiveClass.produce(ReflectiveClassBuildItem.builder(iface.toString())
+					.reason(FEATURE)
+					.methods().fields().build());
+			for (ClassInfo impl : index.getAllKnownImplementors(iface)) {
+				reflectiveClass.produce(ReflectiveClassBuildItem.builder(impl.name().toString())
+						.reason(FEATURE)
+						.methods().fields().constructors().build());
+			}
+		}
 	}
 
 	@BuildStep
