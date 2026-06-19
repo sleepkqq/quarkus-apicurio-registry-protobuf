@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.sleepkqq.quarkus-apicurio-registry-protobuf</groupId>
         <artifactId>quarkus-apicurio-registry-protobuf-parent</artifactId>
-        <version>1.0.14</version>
+        <version>${revision}</version>
     </parent>
     <artifactId>quarkus-apicurio-registry-protobuf</artifactId>
     <name>Quarkus Apicurio Registry Protobuf - Runtime</name>
