@@ -51,12 +51,17 @@ class ApicurioRegistryProtobufProcessor {
 				"io.confluent.kafka.schemaregistry.client.rest.RestService",
 				"io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializerConfig",
 				"io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializerConfig",
-				"io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig",
+				"io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig")
+				.reason(FEATURE)
+				.methods().fields().build());
+
+		reflectiveClass.produce(ReflectiveClassBuildItem.builder(
+				"io.confluent.kafka.serializers.context.NullContextNameStrategy",
 				"io.confluent.kafka.serializers.subject.TopicNameStrategy",
 				"io.confluent.kafka.serializers.subject.RecordNameStrategy",
 				"io.confluent.kafka.serializers.subject.TopicRecordNameStrategy")
 				.reason(FEATURE)
-				.methods().fields().build());
+				.methods().fields().constructors().build());
 	}
 
 	@BuildStep
