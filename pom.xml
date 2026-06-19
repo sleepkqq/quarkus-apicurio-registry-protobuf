@@ -14,9 +14,11 @@
 
     <properties>
         <!-- Single source of truth for the project version (Maven CI-friendly version).
-             Child modules reference it as ${revision} so there is no per-module hardcode to drift.
-             JitPack / release builds override it with -Drevision=<tag>. -->
-        <revision>1.0.20</revision>
+             Child modules reference it as ${revision}; the extension descriptor and JitPack all
+             build from this value, so it MUST equal the git tag of each release. Bump it together
+             with tagging. Do not add a -Drevision override (e.g. in .mvn/maven.config): a stale
+             value there silently builds every artifact under the wrong version. -->
+        <revision>1.0.21</revision>
         <compiler-plugin.version>3.15.0</compiler-plugin.version>
         <flatten-plugin.version>1.7.0</flatten-plugin.version>
         <failsafe-plugin.version>${surefire-plugin.version}</failsafe-plugin.version>
