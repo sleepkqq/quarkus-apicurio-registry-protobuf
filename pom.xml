@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.sleepkqq.quarkus-apicurio-registry-protobuf</groupId>
     <artifactId>quarkus-apicurio-registry-protobuf-parent</artifactId>
-    <version>1.0.23</version>
+    <version>1.0.24</version>
     <packaging>pom</packaging>
     <name>Quarkus Apicurio Registry Protobuf - Parent</name>
 
@@ -18,7 +18,7 @@
              build from this value, so it MUST equal the git tag of each release. Bump it together
              with tagging. Do not add a -Drevision override (e.g. in .mvn/maven.config): a stale
              value there silently builds every artifact under the wrong version. -->
-        <revision>1.0.23</revision>
+        <revision>1.0.24</revision>
         <compiler-plugin.version>3.15.0</compiler-plugin.version>
         <flatten-plugin.version>1.7.0</flatten-plugin.version>
         <failsafe-plugin.version>${surefire-plugin.version}</failsafe-plugin.version>
