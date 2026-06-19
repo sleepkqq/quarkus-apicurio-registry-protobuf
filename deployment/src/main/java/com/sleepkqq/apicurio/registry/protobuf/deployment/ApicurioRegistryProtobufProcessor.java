@@ -85,7 +85,9 @@ class ApicurioRegistryProtobufProcessor {
 
 	@BuildStep
 	void runtimeInitializedProtobuf(BuildProducer<RuntimeInitializedPackageBuildItem> runtimeInitPackage) {
-		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("com.google.protobuf"));
+		// com.google.protobuf is initialized at build time (see runtime native-image.properties):
+		// generated descriptor holders bake MapEntry/Descriptor instances into the image heap, so the
+		// protobuf runtime must be build-time initialized too. Run-time init here would clash with that.
 		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("io.confluent.kafka.schemaregistry.protobuf"));
 		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("metadata"));
 		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("io.apicurio.registry.serde.protobuf.ref"));
