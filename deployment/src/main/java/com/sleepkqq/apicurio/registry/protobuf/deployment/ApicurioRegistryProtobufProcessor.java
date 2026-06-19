@@ -13,6 +13,8 @@ import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.ExtensionSslNativeSupportBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
+import io.quarkus.deployment.builditem.NativeImageFeatureBuildItem;
+import ru.meenity.apicurio.registry.protobuf.runtime.graal.ProtobufBuildTimeInitFeature;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedPackageBuildItem;
@@ -83,11 +85,18 @@ class ApicurioRegistryProtobufProcessor {
 		runtimeInitClass.produce(new RuntimeInitializedClassBuildItem("io.quarkus.runtime.graal.InetRunTime"));
 	}
 
+	/**
+	 * com.google.protobuf is build-time initialized via {@link ProtobufBuildTimeInitFeature}:
+	 * generated descriptor holders bake MapEntry/Descriptor instances into the image heap, so the
+	 * protobuf runtime must be build-time initialized too. Run-time init here would clash with that.
+	 */
+	@BuildStep
+	NativeImageFeatureBuildItem protobufBuildTimeInitFeature() {
+		return new NativeImageFeatureBuildItem(ProtobufBuildTimeInitFeature.class);
+	}
+
 	@BuildStep
 	void runtimeInitializedProtobuf(BuildProducer<RuntimeInitializedPackageBuildItem> runtimeInitPackage) {
-		// com.google.protobuf is initialized at build time (see runtime native-image.properties):
-		// generated descriptor holders bake MapEntry/Descriptor instances into the image heap, so the
-		// protobuf runtime must be build-time initialized too. Run-time init here would clash with that.
 		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("io.confluent.kafka.schemaregistry.protobuf"));
 		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("metadata"));
 		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("io.apicurio.registry.serde.protobuf.ref"));
