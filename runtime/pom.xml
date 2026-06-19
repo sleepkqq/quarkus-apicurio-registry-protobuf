@@ -44,7 +44,7 @@
                                  extension descriptor, making Quarkus pull the wrong deployment jar.
                                  JitPack serves every artifact under the git tag, so pin the tag here.
                                  Bump together with <revision> on each release. -->
-                            <deployment>${project.groupId}:${project.artifactId}-deployment:1.0.19</deployment>
+                            <deployment>${project.groupId}:${project.artifactId}-deployment:1.0.20</deployment>
                         </configuration>
                     </execution>
                 </executions>
