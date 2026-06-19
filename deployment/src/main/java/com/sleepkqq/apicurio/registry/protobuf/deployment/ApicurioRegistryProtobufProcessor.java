@@ -14,6 +14,7 @@ import io.quarkus.deployment.builditem.ExtensionSslNativeSupportBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
+import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedPackageBuildItem;
 
 class ApicurioRegistryProtobufProcessor {
@@ -72,6 +73,14 @@ class ApicurioRegistryProtobufProcessor {
 				"com.google.protobuf.Descriptors$EnumValueDescriptor")
 				.reason(FEATURE)
 				.methods().fields().constructors().build());
+	}
+
+	@BuildStep
+	void runtimeInitializedInet(BuildProducer<RuntimeInitializedClassBuildItem> runtimeInitClass) {
+		// Quarkus' InetRunTime class initializer builds the IPv4/IPv6 wildcard addresses via
+		// io.smallrye.common.net.Inet, baking an Inet4Address into the image heap. InetAddress
+		// must stay run-time initialized (JDK JNI), so defer InetRunTime to run time as well.
+		runtimeInitClass.produce(new RuntimeInitializedClassBuildItem("io.quarkus.runtime.graal.InetRunTime"));
 	}
 
 	@BuildStep
