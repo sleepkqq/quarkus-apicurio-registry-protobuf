@@ -6,6 +6,7 @@ import java.util.Set;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexView;
+import org.jboss.logging.Logger;
 
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -20,6 +21,8 @@ import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildI
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedPackageBuildItem;
 
 class ApicurioRegistryProtobufProcessor {
+
+	private static final Logger LOG = Logger.getLogger(ApicurioRegistryProtobufProcessor.class);
 
 	private static final String FEATURE = "apicurio-registry-protobuf";
 
@@ -112,6 +115,8 @@ class ApicurioRegistryProtobufProcessor {
 	 */
 	@BuildStep
 	void registerRestEntities(BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
+		LOG.infof("apicurio-registry-protobuf: registering %d Confluent REST entities for reflection",
+				REST_ENTITY_CLASSES.length);
 		reflectiveClass.produce(ReflectiveClassBuildItem.builder(REST_ENTITY_CLASSES)
 				.reason(FEATURE)
 				.methods().fields().constructors().build());
