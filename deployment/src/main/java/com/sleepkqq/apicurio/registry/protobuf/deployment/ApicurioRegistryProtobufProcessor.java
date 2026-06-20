@@ -4,9 +4,30 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jboss.jandex.ClassInfo;
-import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexView;
-import org.jboss.logging.Logger;
+
+import com.google.protobuf.AbstractMessage;
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.ExtensionRegistry;
+import com.google.protobuf.ExtensionRegistryLite;
+import com.google.protobuf.GeneratedMessage;
+import com.google.protobuf.ProtocolMessageEnum;
+
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
+import io.confluent.kafka.schemaregistry.client.rest.RestService;
+import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchema;
+import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
+import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
+import io.confluent.kafka.serializers.context.strategy.ContextNameStrategy;
+import io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer;
+import io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializerConfig;
+import io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer;
+import io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializerConfig;
+import io.confluent.kafka.serializers.schema.id.SchemaIdDeserializer;
+import io.confluent.kafka.serializers.schema.id.SchemaIdSerializer;
+import io.confluent.kafka.serializers.subject.strategy.ReferenceSubjectNameStrategy;
+import io.confluent.kafka.serializers.subject.strategy.SubjectNameStrategy;
 
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -15,26 +36,46 @@ import io.quarkus.deployment.builditem.ExtensionSslNativeSupportBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.deployment.builditem.NativeImageFeatureBuildItem;
-import ru.meenity.apicurio.registry.protobuf.runtime.graal.ProtobufBuildTimeInitFeature;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedPackageBuildItem;
+import io.quarkus.runtime.graal.InetRunTime;
+import ru.meenity.apicurio.registry.protobuf.runtime.graal.ProtobufBuildTimeInitFeature;
 
 class ApicurioRegistryProtobufProcessor {
 
-	private static final Logger LOG = Logger.getLogger(ApicurioRegistryProtobufProcessor.class);
-
 	private static final String FEATURE = "apicurio-registry-protobuf";
 
-	private static final DotName GENERATED_MESSAGE = DotName.createSimple("com.google.protobuf.GeneratedMessage");
-	private static final DotName PROTOCOL_MESSAGE_ENUM = DotName.createSimple("com.google.protobuf.ProtocolMessageEnum");
+	private static final Class<?>[] SERDE_STRATEGY_INTERFACES = {
+			ContextNameStrategy.class,
+			SubjectNameStrategy.class,
+			ReferenceSubjectNameStrategy.class,
+			SchemaIdSerializer.class,
+			SchemaIdDeserializer.class
+	};
 
-	private static final DotName[] SERDE_STRATEGY_INTERFACES = {
-			DotName.createSimple("io.confluent.kafka.serializers.context.strategy.ContextNameStrategy"),
-			DotName.createSimple("io.confluent.kafka.serializers.subject.strategy.SubjectNameStrategy"),
-			DotName.createSimple("io.confluent.kafka.serializers.subject.strategy.ReferenceSubjectNameStrategy"),
-			DotName.createSimple("io.confluent.kafka.serializers.schema.id.SchemaIdSerializer"),
-			DotName.createSimple("io.confluent.kafka.serializers.schema.id.SchemaIdDeserializer")
+	/**
+	 * commons-compress (pulled transitively via Avro) ships optional brotli/zstd codec streams whose
+	 * backends (zstd-jni in particular) are not on the build classpath. They are kept as plain class
+	 * names on purpose: a {@code Class} literal would force the class to load during augmentation and
+	 * fail with NoClassDefFoundError. {@link RuntimeInitializedClassBuildItem} only forwards the name
+	 * to native-image, so the optional codecs stay run-time initialized without ever being loaded here.
+	 */
+	private static final String[] OPTIONAL_COMPRESSOR_CLASSES = {
+			"org.apache.commons.compress.compressors.brotli.BrotliCompressorInputStream",
+			"org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream",
+			"org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream"
+	};
+
+	/**
+	 * Packages with no stable type to anchor a {@code Class} literal, so they stay as plain strings:
+	 * {@code metadata} is a Confluent generated-proto root package, and the apicurio serde packages are
+	 * only present when an apicurio serde is on the consumer's classpath.
+	 */
+	private static final String[] RUNTIME_INIT_PACKAGES = {
+			"metadata",
+			"io.apicurio.registry.serde.protobuf.ref",
+			"io.apicurio.registry.utils.protobuf.schema"
 	};
 
 	@BuildStep
@@ -50,19 +91,19 @@ class ApicurioRegistryProtobufProcessor {
 	@BuildStep
 	void registerSerdeClasses(BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
 		reflectiveClass.produce(ReflectiveClassBuildItem.builder(
-				"io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer",
-				"io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer")
+				KafkaProtobufSerializer.class,
+				KafkaProtobufDeserializer.class)
 				.reason(FEATURE)
 				.methods().build());
 
 		reflectiveClass.produce(ReflectiveClassBuildItem.builder(
-				"io.confluent.kafka.schemaregistry.protobuf.ProtobufSchema",
-				"io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider",
-				"io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient",
-				"io.confluent.kafka.schemaregistry.client.rest.RestService",
-				"io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializerConfig",
-				"io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializerConfig",
-				"io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig")
+				ProtobufSchema.class,
+				ProtobufSchemaProvider.class,
+				CachedSchemaRegistryClient.class,
+				RestService.class,
+				KafkaProtobufSerializerConfig.class,
+				KafkaProtobufDeserializerConfig.class,
+				AbstractKafkaSchemaSerDeConfig.class)
 				.reason(FEATURE)
 				.methods().fields().build());
 	}
@@ -70,56 +111,6 @@ class ApicurioRegistryProtobufProcessor {
 	@BuildStep
 	IndexDependencyBuildItem indexSchemaSerializer() {
 		return new IndexDependencyBuildItem("io.confluent", "kafka-schema-serializer");
-	}
-
-	@BuildStep
-	IndexDependencyBuildItem indexSchemaRegistryClient() {
-		return new IndexDependencyBuildItem("io.confluent", "kafka-schema-registry-client");
-	}
-
-	private static final String[] REST_ENTITY_CLASSES = {
-			"io.confluent.kafka.schemaregistry.client.rest.entities.Association",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.Config",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.ContextId",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.ErrorMessage",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.ExecutionEnvironment",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.ExtendedSchema",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.LifecyclePolicy",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.Metadata",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.Mode",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.OpType",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.Rule",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.RuleKind",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.RuleMode",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.RuleSet",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.Schema",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.SchemaEntity",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.SchemaEntity$EntityType",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.SchemaRegistryDeployment",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.SchemaRegistryServerVersion",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.SchemaString",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.SchemaTags",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.ServerClusterId",
-			"io.confluent.kafka.schemaregistry.client.rest.entities.SubjectVersion"
-	};
-
-	/**
-	 * On the lookup path (auto.register.schemas=false, use.latest.version=true) the serializer GETs
-	 * /subjects/{subject}/versions/latest and Jackson-deserializes the JSON into the Confluent REST
-	 * entity classes (Schema, SchemaReference, Metadata, RuleSet, Rule, ...). Each carries a
-	 * {@code @JsonCreator} property-based constructor and no no-arg constructor, so without their
-	 * constructors registered Jackson fails in native with "no delegate- or property-based Creator".
-	 * Register them by name (index-independent: IndexDependencyBuildItem did not reliably surface this
-	 * jar in the combined index, leaving the package-scan loop empty).
-	 */
-	@BuildStep
-	void registerRestEntities(BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
-		LOG.infof("apicurio-registry-protobuf: registering %d Confluent REST entities for reflection",
-				REST_ENTITY_CLASSES.length);
-		reflectiveClass.produce(ReflectiveClassBuildItem.builder(REST_ENTITY_CLASSES)
-				.reason(FEATURE)
-				.methods().fields().constructors().build());
 	}
 
 	/**
@@ -144,11 +135,11 @@ class ApicurioRegistryProtobufProcessor {
 	void registerSerdeStrategies(CombinedIndexBuildItem combinedIndex,
 			BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
 		IndexView index = combinedIndex.getIndex();
-		for (DotName iface : SERDE_STRATEGY_INTERFACES) {
-			reflectiveClass.produce(ReflectiveClassBuildItem.builder(iface.toString())
+		for (Class<?> iface : SERDE_STRATEGY_INTERFACES) {
+			reflectiveClass.produce(ReflectiveClassBuildItem.builder(iface)
 					.reason(FEATURE)
 					.methods().fields().build());
-			for (ClassInfo impl : index.getAllKnownImplementors(iface)) {
+			for (ClassInfo impl : index.getAllKnownImplementations(iface)) {
 				reflectiveClass.produce(ReflectiveClassBuildItem.builder(impl.name().toString())
 						.reason(FEATURE)
 						.methods().fields().constructors().build());
@@ -159,17 +150,17 @@ class ApicurioRegistryProtobufProcessor {
 	@BuildStep
 	void registerProtobufRuntime(BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
 		reflectiveClass.produce(ReflectiveClassBuildItem.builder(
-				"com.google.protobuf.DynamicMessage",
-				"com.google.protobuf.DynamicMessage$Builder",
-				"com.google.protobuf.GeneratedMessage",
-				"com.google.protobuf.GeneratedMessage$Builder",
-				"com.google.protobuf.AbstractMessage",
-				"com.google.protobuf.AbstractMessage$Builder",
-				"com.google.protobuf.Descriptors$Descriptor",
-				"com.google.protobuf.Descriptors$FieldDescriptor",
-				"com.google.protobuf.Descriptors$FileDescriptor",
-				"com.google.protobuf.Descriptors$EnumDescriptor",
-				"com.google.protobuf.Descriptors$EnumValueDescriptor")
+				DynamicMessage.class,
+				DynamicMessage.Builder.class,
+				GeneratedMessage.class,
+				GeneratedMessage.Builder.class,
+				AbstractMessage.class,
+				AbstractMessage.Builder.class,
+				Descriptors.Descriptor.class,
+				Descriptors.FieldDescriptor.class,
+				Descriptors.FileDescriptor.class,
+				Descriptors.EnumDescriptor.class,
+				Descriptors.EnumValueDescriptor.class)
 				.reason(FEATURE)
 				.methods().fields().constructors().build());
 
@@ -178,8 +169,8 @@ class ApicurioRegistryProtobufProcessor {
 		// the method registered, registerAllExtensions (e.g. io.confluent.protobuf.MetaProto, invoked by
 		// ProtobufSchema.<clinit>) throws NoSuchMethodException -> "Could not invoke ExtensionRegistry#add".
 		reflectiveClass.produce(ReflectiveClassBuildItem.builder(
-				"com.google.protobuf.ExtensionRegistry",
-				"com.google.protobuf.ExtensionRegistryLite")
+				ExtensionRegistry.class,
+				ExtensionRegistryLite.class)
 				.reason(FEATURE)
 				.methods().build());
 	}
@@ -191,12 +182,9 @@ class ApicurioRegistryProtobufProcessor {
 	 */
 	@BuildStep
 	void runtimeInitializedCompressors(BuildProducer<RuntimeInitializedClassBuildItem> runtimeInitClass) {
-		runtimeInitClass.produce(new RuntimeInitializedClassBuildItem(
-				"org.apache.commons.compress.compressors.brotli.BrotliCompressorInputStream"));
-		runtimeInitClass.produce(new RuntimeInitializedClassBuildItem(
-				"org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream"));
-		runtimeInitClass.produce(new RuntimeInitializedClassBuildItem(
-				"org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream"));
+		for (String compressor : OPTIONAL_COMPRESSOR_CLASSES) {
+			runtimeInitClass.produce(new RuntimeInitializedClassBuildItem(compressor));
+		}
 	}
 
 	@BuildStep
@@ -204,7 +192,7 @@ class ApicurioRegistryProtobufProcessor {
 		// Quarkus' InetRunTime class initializer builds the IPv4/IPv6 wildcard addresses via
 		// io.smallrye.common.net.Inet, baking an Inet4Address into the image heap. InetAddress
 		// must stay run-time initialized (JDK JNI), so defer InetRunTime to run time as well.
-		runtimeInitClass.produce(new RuntimeInitializedClassBuildItem("io.quarkus.runtime.graal.InetRunTime"));
+		runtimeInitClass.produce(new RuntimeInitializedClassBuildItem(InetRunTime.class.getName()));
 	}
 
 	/**
@@ -219,10 +207,10 @@ class ApicurioRegistryProtobufProcessor {
 
 	@BuildStep
 	void runtimeInitializedProtobuf(BuildProducer<RuntimeInitializedPackageBuildItem> runtimeInitPackage) {
-		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("io.confluent.kafka.schemaregistry.protobuf"));
-		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("metadata"));
-		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("io.apicurio.registry.serde.protobuf.ref"));
-		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem("io.apicurio.registry.utils.protobuf.schema"));
+		runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem(ProtobufSchema.class.getPackageName()));
+		for (String pkg : RUNTIME_INIT_PACKAGES) {
+			runtimeInitPackage.produce(new RuntimeInitializedPackageBuildItem(pkg));
+		}
 	}
 
 	@BuildStep
@@ -248,11 +236,11 @@ class ApicurioRegistryProtobufProcessor {
 
 		if (config.registerMessageClasses().orElse(Boolean.TRUE)) {
 			IndexView index = combinedIndex.getIndex();
-			for (ClassInfo message : index.getAllKnownSubclasses(GENERATED_MESSAGE)) {
+			for (ClassInfo message : index.getAllKnownSubclasses(GeneratedMessage.class)) {
 				registerMessage(reflectiveClass, message.name().toString());
 				addPackage(messagePackages, message.name().toString());
 			}
-			for (ClassInfo protoEnum : index.getAllKnownImplementors(PROTOCOL_MESSAGE_ENUM)) {
+			for (ClassInfo protoEnum : index.getAllKnownImplementations(ProtocolMessageEnum.class)) {
 				reflectiveClass.produce(ReflectiveClassBuildItem.builder(protoEnum.name().toString())
 						.reason(FEATURE)
 						.methods().fields().build());

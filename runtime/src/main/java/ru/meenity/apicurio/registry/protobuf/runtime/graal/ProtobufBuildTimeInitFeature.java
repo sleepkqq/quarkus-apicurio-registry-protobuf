@@ -3,6 +3,8 @@ package ru.meenity.apicurio.registry.protobuf.runtime.graal;
 import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.hosted.RuntimeClassInitialization;
 
+import com.google.protobuf.GeneratedMessage;
+
 /**
  * Protobuf generates descriptor holder classes whose static initializers create MapEntry/Descriptor
  * instances; with the protobuf runtime initialized at image run time those instances are rejected
@@ -17,6 +19,6 @@ public final class ProtobufBuildTimeInitFeature implements Feature {
 
     @Override
     public void afterRegistration(AfterRegistrationAccess access) {
-        RuntimeClassInitialization.initializeAtBuildTime("com.google.protobuf");
+        RuntimeClassInitialization.initializeAtBuildTime(GeneratedMessage.class.getPackageName());
     }
 }

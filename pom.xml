@@ -18,7 +18,7 @@
              build from this value, so it MUST equal the git tag of each release. Bump it together
              with tagging. Do not add a -Drevision override (e.g. in .mvn/maven.config): a stale
              value there silently builds every artifact under the wrong version. -->
-        <revision>1.0.31</revision>
+        <revision>1.1.0</revision>
         <compiler-plugin.version>3.15.0</compiler-plugin.version>
         <flatten-plugin.version>1.7.0</flatten-plugin.version>
         <failsafe-plugin.version>${surefire-plugin.version}</failsafe-plugin.version>
@@ -28,8 +28,10 @@
         <quarkus.version>3.36.2</quarkus.version>
         <apicurio.version>3.3.0</apicurio.version>
         <confluent.version>8.2.1</confluent.version>
-        <!-- Must be >= the protoc gencode version bundled in Apicurio's schema-util-protobuf
-             (4.34.1); protobuf-java 4.x refuses to run gencode newer than the runtime. -->
+        <!-- Must be >= the protoc gencode bundled in Confluent's kafka-protobuf-provider/-types
+             (8.2.1 -> 4.32.1); protobuf-java 4.x refuses to run gencode newer than the runtime.
+             Confluent serde is the only protobuf dependency here; apicurio.version above is just
+             dependencyManagement alignment and pulls no protobuf gencode. -->
         <protobuf.version>4.35.1</protobuf.version>
         <surefire-plugin.version>3.5.6</surefire-plugin.version>
     </properties>

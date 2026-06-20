@@ -5,7 +5,9 @@ import java.net.Socket;
 import com.oracle.svm.core.annotate.Substitute;
 import com.oracle.svm.core.annotate.TargetClass;
 
-@TargetClass(className = "io.confluent.kafka.schemaregistry.client.ssl.HostSslSocketFactory")
+import io.confluent.kafka.schemaregistry.client.ssl.HostSslSocketFactory;
+
+@TargetClass(HostSslSocketFactory.class)
 final class Target_HostSslSocketFactory {
 
 	@Substitute
