@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.sleepkqq.quarkus-apicurio-registry-protobuf</groupId>
         <artifactId>quarkus-apicurio-registry-protobuf-parent</artifactId>
-        <version>1.0.26</version>
+        <version>1.0.27</version>
     </parent>
     <artifactId>quarkus-apicurio-registry-protobuf</artifactId>
     <name>Quarkus Apicurio Registry Protobuf - Runtime</name>
@@ -18,6 +18,18 @@
         <dependency>
             <groupId>io.confluent</groupId>
             <artifactId>kafka-protobuf-serializer</artifactId>
+        </dependency>
+        <!-- Optional commons-compress codec backends (avro -> commons-compress). Provided here so
+             consumers inherit them transitively and need no compressor deps of their own. -->
+        <dependency>
+            <groupId>org.brotli</groupId>
+            <artifactId>dec</artifactId>
+            <version>0.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.tukaani</groupId>
+            <artifactId>xz</artifactId>
+            <version>1.10</version>
         </dependency>
         <dependency>
             <groupId>org.graalvm.sdk</groupId>

@@ -121,6 +121,21 @@ class ApicurioRegistryProtobufProcessor {
 				.methods().fields().constructors().build());
 	}
 
+	/**
+	 * Avro (pulled by kafka-schema-registry-client) brings commons-compress, whose optional brotli/zstd
+	 * codec streams reference native libraries and must be initialized at run time, not baked into the
+	 * image heap at build time. Defer them here so consumers need no native-image args of their own.
+	 */
+	@BuildStep
+	void runtimeInitializedCompressors(BuildProducer<RuntimeInitializedClassBuildItem> runtimeInitClass) {
+		runtimeInitClass.produce(new RuntimeInitializedClassBuildItem(
+				"org.apache.commons.compress.compressors.brotli.BrotliCompressorInputStream"));
+		runtimeInitClass.produce(new RuntimeInitializedClassBuildItem(
+				"org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream"));
+		runtimeInitClass.produce(new RuntimeInitializedClassBuildItem(
+				"org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream"));
+	}
+
 	@BuildStep
 	void runtimeInitializedInet(BuildProducer<RuntimeInitializedClassBuildItem> runtimeInitClass) {
 		// Quarkus' InetRunTime class initializer builds the IPv4/IPv6 wildcard addresses via
