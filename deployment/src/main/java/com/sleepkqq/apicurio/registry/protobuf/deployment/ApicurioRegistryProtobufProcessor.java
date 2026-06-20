@@ -74,26 +74,47 @@ class ApicurioRegistryProtobufProcessor {
 		return new IndexDependencyBuildItem("io.confluent", "kafka-schema-registry-client");
 	}
 
+	private static final String[] REST_ENTITY_CLASSES = {
+			"io.confluent.kafka.schemaregistry.client.rest.entities.Association",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.Config",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.ContextId",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.ErrorMessage",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.ExecutionEnvironment",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.ExtendedSchema",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.LifecyclePolicy",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.Metadata",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.Mode",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.OpType",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.Rule",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.RuleKind",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.RuleMode",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.RuleSet",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.Schema",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.SchemaEntity",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.SchemaEntity$EntityType",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.SchemaRegistryDeployment",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.SchemaRegistryServerVersion",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.SchemaString",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.SchemaTags",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.ServerClusterId",
+			"io.confluent.kafka.schemaregistry.client.rest.entities.SubjectVersion"
+	};
+
 	/**
 	 * On the lookup path (auto.register.schemas=false, use.latest.version=true) the serializer GETs
 	 * /subjects/{subject}/versions/latest and Jackson-deserializes the JSON into the Confluent REST
-	 * entity classes (Schema, SchemaReference, Metadata, RuleSet, Rule, ...). Without reflection those
-	 * have "no delegate- or property-based Creator" in native and serialization fails. Register the
-	 * whole rest.entities package (and its sub-packages) for reflection.
+	 * entity classes (Schema, SchemaReference, Metadata, RuleSet, Rule, ...). Each carries a
+	 * {@code @JsonCreator} property-based constructor and no no-arg constructor, so without their
+	 * constructors registered Jackson fails in native with "no delegate- or property-based Creator".
+	 * Register them by name (index-independent: IndexDependencyBuildItem did not reliably surface this
+	 * jar in the combined index, leaving the package-scan loop empty).
 	 */
 	@BuildStep
-	void registerRestEntities(CombinedIndexBuildItem combinedIndex,
-			BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
-		IndexView index = combinedIndex.getIndex();
-		String entitiesPackage = "io.confluent.kafka.schemaregistry.client.rest.entities.";
-		for (ClassInfo classInfo : index.getKnownClasses()) {
-			String name = classInfo.name().toString();
-			if (name.startsWith(entitiesPackage)) {
-				reflectiveClass.produce(ReflectiveClassBuildItem.builder(name)
-						.reason(FEATURE)
-						.methods().fields().constructors().build());
-			}
-		}
+	void registerRestEntities(BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
+		reflectiveClass.produce(ReflectiveClassBuildItem.builder(REST_ENTITY_CLASSES)
+				.reason(FEATURE)
+				.methods().fields().constructors().build());
 	}
 
 	/**
