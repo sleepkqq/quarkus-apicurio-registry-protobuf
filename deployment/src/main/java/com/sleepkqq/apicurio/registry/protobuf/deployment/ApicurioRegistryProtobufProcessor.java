@@ -69,6 +69,33 @@ class ApicurioRegistryProtobufProcessor {
 		return new IndexDependencyBuildItem("io.confluent", "kafka-schema-serializer");
 	}
 
+	@BuildStep
+	IndexDependencyBuildItem indexSchemaRegistryClient() {
+		return new IndexDependencyBuildItem("io.confluent", "kafka-schema-registry-client");
+	}
+
+	/**
+	 * On the lookup path (auto.register.schemas=false, use.latest.version=true) the serializer GETs
+	 * /subjects/{subject}/versions/latest and Jackson-deserializes the JSON into the Confluent REST
+	 * entity classes (Schema, SchemaReference, Metadata, RuleSet, Rule, ...). Without reflection those
+	 * have "no delegate- or property-based Creator" in native and serialization fails. Register the
+	 * whole rest.entities package (and its sub-packages) for reflection.
+	 */
+	@BuildStep
+	void registerRestEntities(CombinedIndexBuildItem combinedIndex,
+			BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
+		IndexView index = combinedIndex.getIndex();
+		String entitiesPackage = "io.confluent.kafka.schemaregistry.client.rest.entities.";
+		for (ClassInfo classInfo : index.getKnownClasses()) {
+			String name = classInfo.name().toString();
+			if (name.startsWith(entitiesPackage)) {
+				reflectiveClass.produce(ReflectiveClassBuildItem.builder(name)
+						.reason(FEATURE)
+						.methods().fields().constructors().build());
+			}
+		}
+	}
+
 	/**
 	 * Confluent's ProtobufSchema static initializer eagerly resolves the descriptors of well-known
 	 * types (io.confluent.protobuf.MetaProto, io.confluent.protobuf.type.DecimalProto, com.google.type.*),
