@@ -70,6 +70,18 @@ class ApicurioRegistryProtobufProcessor {
 	}
 
 	/**
+	 * Confluent's ProtobufSchema static initializer eagerly resolves the descriptors of well-known
+	 * types (io.confluent.protobuf.MetaProto, io.confluent.protobuf.type.DecimalProto, com.google.type.*),
+	 * which live in kafka-protobuf-types. Index that jar so {@link #registerMessageClasses} registers
+	 * those GeneratedMessage subclasses for reflection; otherwise ProtobufSchema.&lt;clinit&gt; fails in
+	 * native and serialization throws "Could not initialize class ProtobufSchema".
+	 */
+	@BuildStep
+	IndexDependencyBuildItem indexProtobufTypes() {
+		return new IndexDependencyBuildItem("io.confluent", "kafka-protobuf-types");
+	}
+
+	/**
 	 * Confluent serde reflectively instantiates the context/subject/schema-id strategies via a public
 	 * no-arg constructor (AbstractConfig.getConfiguredInstance). Rather than listing each default by
 	 * name, register every implementor of the strategy interfaces with constructors so any default or
