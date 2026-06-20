@@ -119,6 +119,16 @@ class ApicurioRegistryProtobufProcessor {
 				"com.google.protobuf.Descriptors$EnumValueDescriptor")
 				.reason(FEATURE)
 				.methods().fields().constructors().build());
+
+		// ExtensionRegistryLite.add(ExtensionLite) reflectively looks up ExtensionRegistry#add(Extension)
+		// (getClass().getMethod("add", Extension.class)) when registering generated extensions. Without
+		// the method registered, registerAllExtensions (e.g. io.confluent.protobuf.MetaProto, invoked by
+		// ProtobufSchema.<clinit>) throws NoSuchMethodException -> "Could not invoke ExtensionRegistry#add".
+		reflectiveClass.produce(ReflectiveClassBuildItem.builder(
+				"com.google.protobuf.ExtensionRegistry",
+				"com.google.protobuf.ExtensionRegistryLite")
+				.reason(FEATURE)
+				.methods().build());
 	}
 
 	/**
