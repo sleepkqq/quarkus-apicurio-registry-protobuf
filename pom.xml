@@ -18,7 +18,7 @@
              build from this value, so it MUST equal the git tag of each release. Bump it together
              with tagging. Do not add a -Drevision override (e.g. in .mvn/maven.config): a stale
              value there silently builds every artifact under the wrong version. -->
-        <revision>1.1.0</revision>
+        <revision>1.1.1</revision>
         <compiler-plugin.version>3.15.0</compiler-plugin.version>
         <flatten-plugin.version>1.7.3</flatten-plugin.version>
         <failsafe-plugin.version>${surefire-plugin.version}</failsafe-plugin.version>
