@@ -38,7 +38,9 @@ mvn -f integration-tests/pom.xml verify -Dnative -Dquarkus.native.container-buil
   (quarkusio/quarkus#35110). Target Java 21.
 - **No explanatory comments in code.** Put the "why" in commits / this file, not inline.
 - Every third-party dependency and plugin version lives in a pom `<properties>` block, referenced
-  by `${...}`. Module's own version stays literal in `<parent>`/`<project>`.
+  by `${...}`. The project version is single-sourced via the Maven CI-friendly `${revision}`
+  property (parent `<version>` and every child `<parent><version>` reference it); bump `<revision>`
+  to match each git tag — that is the only place the release version lives.
 - Indentation: tabs.
 
 ## How the extension works (deployment build steps)
