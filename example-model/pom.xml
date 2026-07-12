@@ -13,7 +13,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <protobuf.version>4.35.1</protobuf.version>
         <kotlin.version>2.4.0</kotlin.version>
-        <protobuf-maven-plugin.version>5.1.6</protobuf-maven-plugin.version>
+        <protobuf-maven-plugin.version>5.1.7</protobuf-maven-plugin.version>
         <compiler-plugin.version>3.15.0</compiler-plugin.version>
     </properties>
 
