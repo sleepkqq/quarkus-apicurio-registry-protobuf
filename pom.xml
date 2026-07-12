@@ -18,14 +18,14 @@
              build from this value, so it MUST equal the git tag of each release. Bump it together
              with tagging. Do not add a -Drevision override (e.g. in .mvn/maven.config): a stale
              value there silently builds every artifact under the wrong version. -->
-        <revision>1.1.2</revision>
+        <revision>1.1.4</revision>
         <compiler-plugin.version>3.15.0</compiler-plugin.version>
         <flatten-plugin.version>1.7.3</flatten-plugin.version>
         <failsafe-plugin.version>${surefire-plugin.version}</failsafe-plugin.version>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <quarkus.version>3.37.1</quarkus.version>
+        <quarkus.version>3.37.2</quarkus.version>
         <apicurio.version>3.3.0</apicurio.version>
         <confluent.version>8.3.0</confluent.version>
         <!-- Must be >= the protoc gencode bundled in Confluent's kafka-protobuf-provider/-types
