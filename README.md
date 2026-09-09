@@ -45,7 +45,7 @@ classes get stripped, so a naive native build fails at runtime with
 <!-- versions:start -->
 | Extension | Quarkus  | Confluent serde | protobuf-java | Java |
 |-----------|----------|-----------------|---------------|------|
-| `1.1.2`   | `3.36.3` | `8.3.0`         | `4.35.1`      | `21` |
+| `1.1.8`   | `3.39.2` | `8.3.1`         | `4.36.1`      | `21` |
 <!-- versions:end -->
 
 Registry side: **Apicurio Registry 3.x** via its `ccompat` endpoint
@@ -66,7 +66,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.sleepkqq.quarkus-apicurio-registry-protobuf:quarkus-apicurio-registry-protobuf:1.1.2")
+    implementation("com.github.sleepkqq.quarkus-apicurio-registry-protobuf:quarkus-apicurio-registry-protobuf:1.1.8")
     implementation("io.quarkus:quarkus-messaging-kafka") // or quarkus-kafka-client
 }
 ```
