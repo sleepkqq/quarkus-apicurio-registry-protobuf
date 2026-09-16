@@ -3,6 +3,7 @@ package ru.meenity.apicurio.registry.protobuf.runtime.graal;
 import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.hosted.RuntimeClassInitialization;
 
+import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.GeneratedMessage;
 
 /**
@@ -17,8 +18,13 @@ import com.google.protobuf.GeneratedMessage;
  */
 public final class ProtobufBuildTimeInitFeature implements Feature {
 
-    @Override
-    public void afterRegistration(AfterRegistrationAccess access) {
-        RuntimeClassInitialization.initializeAtBuildTime(GeneratedMessage.class.getPackageName());
-    }
+	@Override
+	public void afterRegistration(AfterRegistrationAccess access) {
+		RuntimeClassInitialization.initializeAtBuildTime(GeneratedMessage.class.getPackageName());
+	}
+
+	@Override
+	public void duringSetup(DuringSetupAccess access) {
+		DescriptorProtos.getDescriptor();
+	}
 }
