@@ -13,7 +13,7 @@
     <properties>
         <skipITs>true</skipITs>
         <testcontainers.version>2.0.5</testcontainers.version>
-        <apicurio.image>apicurio/apicurio-registry:3.2.4</apicurio.image>
+        <apicurio.image>apicurio/apicurio-registry:3.3.3</apicurio.image>
         <catalog-model.version>1.0.0-SNAPSHOT</catalog-model.version>
     </properties>
 
@@ -77,7 +77,7 @@
                     <!-- Pin the Docker Remote API so Testcontainers' docker-java does not
                          fall back to 1.32, which recent Docker daemons (>=1.40) reject.
                          argLine reaches the forked test JVM where Dev Services start. -->
-                    <argLine>-Ddocker.host=unix:///var/run/docker.sock -Dapi.version=1.43</argLine>
+                    <argLine>-Ddocker.host=unix:///var/run/docker.sock -Dapi.version=1.43 -Dapicurio.image=${apicurio.image}</argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -91,7 +91,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <argLine>-Ddocker.host=unix:///var/run/docker.sock -Dapi.version=1.43</argLine>
+                    <argLine>-Ddocker.host=unix:///var/run/docker.sock -Dapi.version=1.43 -Dapicurio.image=${apicurio.image}</argLine>
                     <systemPropertyVariables>
                         <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
