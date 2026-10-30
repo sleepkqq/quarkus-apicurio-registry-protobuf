@@ -62,6 +62,10 @@ mvn -f integration-tests/pom.xml verify -Dnative -Dquarkus.native.container-buil
   dependency jars only. This is why `example-model` is a standalone build, not a reactor module.
 - **Apicurio version skew**: the 3.2.4 protobuf serde pins older (3.1.x) transitive serde modules;
   the parent pom force-aligns the whole `io.apicurio` serde stack to `${apicurio.version}`.
+- **Confluent serde vs kafka-clients**: 8.4.x needs `org.apache.kafka.common.utils.internals.ByteUtils`
+  from Confluent's own `kafka-clients` 8.4.0-ccs, which the Quarkus BOM-managed `kafka-clients`
+  (4.2.1) lacks. `${confluent.version}` stays on the newest 8.3.x until the BOM ships a compatible
+  client.
 - **protobuf gencode > runtime**: Apicurio's `schema-util-protobuf` gencode (4.34.1) must be ≤ the
   runtime protobuf-java; explicit dependencyManagement pins `protobuf-java` to `${protobuf.version}`.
 - **Docker ≥ 25/29 vs Testcontainers**: docker-java negotiates API 1.32 (rejected). The IT pins

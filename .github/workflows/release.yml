@@ -10,6 +10,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v7
@@ -23,7 +24,34 @@ jobs:
       - name: Build
         run: ./mvnw -B clean install -DskipTests
 
+      - name: Validate release version
+        env:
+          RELEASE_VERSION: ${{ github.ref_name }}
+        run: grep -Fq "<revision>$RELEASE_VERSION</revision>" pom.xml
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true
+
+      - name: Trigger and verify JitPack artifacts
+        env:
+          RELEASE_VERSION: ${{ github.ref_name }}
+        run: |
+          base="https://jitpack.io/com/github/sleepkqq/quarkus-apicurio-registry-protobuf"
+          for attempt in {1..60}; do
+            if curl --fail --silent --show-error --max-time 30 \
+              "$base/quarkus-apicurio-registry-protobuf/$RELEASE_VERSION/quarkus-apicurio-registry-protobuf-$RELEASE_VERSION.pom" \
+              --output /tmp/extension.pom; then
+              break
+            fi
+            if [[ "$attempt" == 60 ]]; then exit 1; fi
+            sleep 10
+          done
+          for artifact in quarkus-apicurio-registry-protobuf quarkus-apicurio-registry-protobuf-deployment; do
+            curl --fail --silent --show-error --retry 3 --max-time 60 \
+              "$base/$artifact/$RELEASE_VERSION/$artifact-$RELEASE_VERSION.jar" \
+              --output "/tmp/$artifact.jar"
+            jar tf "/tmp/$artifact.jar" > "/tmp/$artifact-contents.txt"
+          done
+          grep -Fq 'ApicurioRegistryProtobufProcessor.class' /tmp/quarkus-apicurio-registry-protobuf-deployment-contents.txt
