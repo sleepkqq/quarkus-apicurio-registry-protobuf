@@ -18,7 +18,7 @@ public class ApicurioRegistryProtobufResourceTest {
 				.when().get("/protobuf/java-roundtrip")
 				.then()
 				.statusCode(200)
-				.body(is("com.example.catalog.Book|Dune|Herbert"));
+				.body(is("com.example.catalog.Book|Dune|Herbert|123456789|123456789"));
 	}
 
 	@Test

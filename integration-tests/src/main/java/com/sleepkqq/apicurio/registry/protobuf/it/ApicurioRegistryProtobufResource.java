@@ -20,6 +20,7 @@ import com.example.catalog.Book;
 import com.example.sample.WeatherFactory;
 import com.example.weather.Reading;
 import com.google.protobuf.Message;
+import com.google.protobuf.Timestamp;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -43,9 +44,11 @@ public class ApicurioRegistryProtobufResource {
 				.setIsbn("978-0441013593")
 				.setTitle("Dune")
 				.setAuthor("Herbert")
+				.setPublishedAt(Timestamp.newBuilder().setSeconds(123456789).setNanos(123456789))
 				.build();
 		Book received = roundtrip("catalog-book", sent, Book.class);
-		return received.getClass().getName() + "|" + received.getTitle() + "|" + received.getAuthor();
+		return received.getClass().getName() + "|" + received.getTitle() + "|" + received.getAuthor()
+				+ "|" + received.getPublishedAt().getSeconds() + "|" + received.getPublishedAt().getNanos();
 	}
 
 	@GET

@@ -13,6 +13,7 @@ import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.ProtocolMessageEnum;
+import com.google.protobuf.Timestamp;
 
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.RestService;
@@ -149,6 +150,7 @@ class ApicurioRegistryProtobufProcessor {
 
 	@BuildStep
 	void registerProtobufRuntime(BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
+		registerMessage(reflectiveClass, Timestamp.class.getName());
 		reflectiveClass.produce(ReflectiveClassBuildItem.builder(
 				DynamicMessage.class,
 				DynamicMessage.Builder.class,
