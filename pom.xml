@@ -26,8 +26,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.version>3.40.1.1</quarkus.version>
-        <apicurio.version>3.3.3</apicurio.version>
-        <confluent.version>8.3.2</confluent.version>
+        <apicurio.version>3.3.4</apicurio.version>
+        <confluent.version>8.4.0</confluent.version>
         <!-- Must be >= the protoc gencode bundled in Confluent's kafka-protobuf-provider/-types
              (8.3.2 -> 4.34.0); protobuf-java 4.x refuses to run gencode newer than the runtime.
              Confluent serde is the only protobuf dependency here; apicurio.version above is just
