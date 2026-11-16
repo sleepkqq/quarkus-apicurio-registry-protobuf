@@ -20,14 +20,14 @@
              value there silently builds every artifact under the wrong version. -->
         <revision>1.1.11</revision>
         <compiler-plugin.version>3.16.0</compiler-plugin.version>
-        <flatten-plugin.version>1.8.0</flatten-plugin.version>
+        <flatten-plugin.version>1.9.0</flatten-plugin.version>
         <failsafe-plugin.version>${surefire-plugin.version}</failsafe-plugin.version>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <quarkus.version>3.40.1.1</quarkus.version>
-        <apicurio.version>3.3.3</apicurio.version>
-        <confluent.version>8.3.2</confluent.version>
+        <quarkus.version>3.40.1.2</quarkus.version>
+        <apicurio.version>3.3.4</apicurio.version>
+        <confluent.version>8.4.1</confluent.version>
         <!-- Must be >= the protoc gencode bundled in Confluent's kafka-protobuf-provider/-types
              (8.3.2 -> 4.34.0); protobuf-java 4.x refuses to run gencode newer than the runtime.
              Confluent serde is the only protobuf dependency here; apicurio.version above is just
